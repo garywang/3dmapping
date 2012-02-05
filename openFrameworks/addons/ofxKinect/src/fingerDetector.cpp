@@ -7,7 +7,7 @@
  *  Copyright 2009 Mechanics_of_destruction. All rights reserved.
  *
  */
-
+/*
 #include "fingerDetector.h"
 
 fingerDetector::fingerDetector()
@@ -162,3 +162,4 @@ void fingerDetector::drawhands(float x, float y)
    ofCircle(x+rhand[handspos[1]].x, y+rhand[handspos[1]].y, 50);
 
 }
+*/
