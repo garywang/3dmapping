@@ -46,39 +46,86 @@ void testApp::update() {
 	
 	// there is a new frame and we are connected
 	if(kinect.isFrameNew()) {
-		
-		// load grayscale depth image from the kinect source
-		grayImage.setFromPixels(kinect.getDepthPixels(), kinect.width, kinect.height);
-		
-		// we do two thresholds - one for the far plane and one for the near plane
-		// we then do a cvAnd to get the pixels which are a union of the two thresholds
-		if(bThreshWithOpenCV) {
-			grayThreshNear = grayImage;
-			grayThreshFar = grayImage;
-			grayThreshNear.threshold(nearThreshold, true);
-			grayThreshFar.threshold(farThreshold);
-			cvAnd(grayThreshNear.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
-		} else {
-			
-			// or we do it ourselves - show people how they can work with the pixels
-			unsigned char * pix = grayImage.getPixels();
-			
-			int numPixels = grayImage.getWidth() * grayImage.getHeight();
-			for(int i = 0; i < numPixels; i++) {
-				if(pix[i] < nearThreshold && pix[i] > farThreshold) {
-					pix[i] = 255;
-				} else {
-					pix[i] = 0;
-				}
-			}
+	  // load grayscale depth image from the kinect source
+	  grayImage.setFromPixels(kinect.getDepthPixels(), kinect.width, kinect.height);
+	  unsigned char* depthData;
+	  vector< pair<int,int> > blobs[2];
+	  queue< pair<int, int> > que;
+	  depthData = kinect.getDepthPixels();
+
+	  bool used[480][640];
+
+	  for (int count = 0; count < 2; count ++) {
+	    int closest=0;
+	    pair<int, int> closestPair;
+	    for(int i=0; i<480; i++) {
+	      for(int j=0; j<640; j++) {
+		if(depthData[i*640+j]>closest) {
+		  closest=depthData[i*640+j];
+		  closestPair=pair<int, int>(i, j);
+		  depthData[i*640 + j] = 0;
 		}
-		
-		// update the cv images
-		grayImage.flagImageChanged();
-		
-		// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
-		// also, find holes is set to true so we will get interior contours as well....
-		contourFinder.findContours(grayImage, 10, (kinect.width*kinect.height)/2, 20, false);
+		used[i][j]=false;
+	      }
+	    }
+	    
+	    que.push(closestPair);
+	    used[closestPair.first][closestPair.second]=true;
+	    while(!que.empty()){
+	      int i=que.front().first;
+	      int j=que.front().second;
+	      que.pop();
+	      for(int ii=max(i-1, 0); ii<=min(i+1, 480-1); ii++) {
+		for(int jj=max(j-1, 0); jj<=min(j+1, 640-1); jj++) {
+		  if(!used[ii][jj] && abs(depthData[ii*640+jj]-closest)<10){//depthData[ii*640+jj]>depthData[i*640+j]){
+		    used[ii][jj]=true;
+		    blobs[count].push_back(pair<int, int>(ii, jj));
+		    que.push(pair<int, int>(ii, jj));
+		    depthData[ii*640+jj] = 0;
+		  }
+		}
+	      }
+	    }
+	  }
+
+
+	  // we do two thresholds - one for the far plane and one for the near plane
+	  // we then do a cvAnd to get the pixels which are a union of the two thresholds
+	  /*
+	    if(bThreshWithOpenCV) {
+	    grayThreshNear = grayImage;
+	    grayThreshFar = grayImage;
+	    cvAnd(grayThreshNear.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
+	    } else {
+	    
+	    // or we do it ourselves - show people how they can work with the pixels
+	    unsigned char * pix = grayImage.getPixels();
+	    int numPixels = grayImage.getWidth() * grayImage.getHeight();
+	    for(int i = 0; i < numPixels; i++) {
+	    if(pix[i] < nearThreshold && pix[i] > farThreshold) {
+	    pix[i] = 255;
+	    } else {
+	    pix[i] = 0;
+	    }
+	    }
+	    }*/
+
+	  unsigned char * pix = grayImage.getPixels();
+	  for(int i = 0; i < grayImage.width*grayImage.height; i++) {
+	    pix[i] = 0;
+	  }
+	  for(int i = 0; i < 2; i++) {
+	    for (int j = 0; j < blobs[i].size(); j++) {
+	      pix[blobs[i][j].first*640 + blobs[i][j].second] = 255;
+	    }
+	  }
+
+	  // update the cv images
+	  grayImage.flagImageChanged();
+
+	  // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
+	  // also, find holes is set to true so we will get interior contours as well....
+	  contourFinder.findContours(grayImage, 2, (kinect.width*kinect.height)/2, 10, false);
 	}
 	
 #ifdef USE_TWO_KINECTS
