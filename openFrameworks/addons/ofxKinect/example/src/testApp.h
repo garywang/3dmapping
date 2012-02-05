@@ -4,6 +4,8 @@
 #include "ofxOpenCv.h"
 #include "ofxKinect.h"
 
+#define NUM_BLOBS 5
+
 // uncomment this to read from two kinects simultaneously
 //#define USE_TWO_KINECTS
 

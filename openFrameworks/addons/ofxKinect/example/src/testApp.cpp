@@ -49,13 +49,13 @@ void testApp::update() {
 	  // load grayscale depth image from the kinect source
 	  grayImage.setFromPixels(kinect.getDepthPixels(), kinect.width, kinect.height);
 	  unsigned char* depthData;
-	  vector< pair<int,int> > blobs[2];
+	  vector< pair<int,int> > blobs[NUM_BLOBS];
 	  queue< pair<int, int> > que;
 	  depthData = kinect.getDepthPixels();
 
 	  bool used[480][640];
 
-	  for (int count = 0; count < 2; count ++) {
+	  for (int count = 0; count < NUM_BLOBS; count ++) {
 	    int closest=0;
 	    pair<int, int> closestPair;
 	    for(int i=0; i<480; i++) {
@@ -114,9 +114,12 @@ void testApp::update() {
 	  for(int i = 0; i < grayImage.width*grayImage.height; i++) {
 	    pix[i] = 0;
 	  }
-	  for(int i = 0; i < 2; i++) {
-	    for (int j = 0; j < blobs[i].size(); j++) {
-	      pix[blobs[i][j].first*640 + blobs[i][j].second] = 255;
+	  for(int i = 0, count = 0; i < NUM_BLOBS && count < 2; i++) {
+	    if (blobs[i].size() > 100) {
+	      count ++;
+	      for (int j = 0; j < blobs[i].size(); j++) {
+		pix[blobs[i][j].first*640 + blobs[i][j].second] = 255;
+	      }
 	    }
 	  }
 
