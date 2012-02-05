@@ -88,7 +88,7 @@ void CColor::take (CColor *col)
 
 CTexture::CTexture ()
 {
-  texlight = 1.0F; width = 0; height = 0; textureID = -1; data = NULL;
+  texlight = 1.0F; width2 = 0; height2 = 0; textureID = -1; data = NULL;
   texred = 1.0F; texgreen = 1.0F; texblue = 1.0F;
   mipmap = true; quality = 0;
 }
@@ -103,7 +103,7 @@ int CTexture::loadFromTGA (char *fname, int quality, int alphatype, int mipmap) 
   int i, i2;
 
 #ifdef LOADER_TGA_H
-  data = tga_load (fname, &width, &height); // global 32 bpp texture buffer
+  data = tga_load (fname, &width2, &height2); // global 32 bpp texture buffer
   if (!data) return 0;
 #else
   unsigned char skip;
@@ -111,14 +111,14 @@ int CTexture::loadFromTGA (char *fname, int quality, int alphatype, int mipmap) 
   if (!in) return 0;
   fread (&skip, 1, 1, in);
   fseek (in, 12, SEEK_SET);
-  fread (&width, 2, 1, in);
-  fread (&height, 2, 1, in);
+  fread (&width2, 2, 1, in);
+  fread (&height2, 2, 1, in);
   fseek (in, 18 + skip, SEEK_SET);
-  unsigned char *buf = (unsigned char *) malloc (width * height * 3); // preload file buffer
+  unsigned char *buf = (unsigned char *) malloc (width2 * height2 * 3); // preload file buffer
   if (buf == NULL) error_outofmemory ();
-  data = (unsigned char *) malloc (width * height * 4); // global 32 bpp texture buffer
+  data = (unsigned char *) malloc (width2 * height2 * 4); // global 32 bpp texture buffer
   if (data == NULL) error_outofmemory ();
-  fread (buf, width * height * 3, 1, in);
+  fread (buf, width2 * height2 * 3, 1, in);
 #endif
 
   long texl = 0;
@@ -126,10 +126,10 @@ int CTexture::loadFromTGA (char *fname, int quality, int alphatype, int mipmap) 
   long texg = 0;
   long texb = 0;
 
-  for (i = 0; i < height; i ++)
-    for (i2 = 0; i2 < width; i2 ++)
+  for (i = 0; i < height2; i ++)
+    for (i2 = 0; i2 < width2; i2 ++)
     {
-      int n2 = (i * width + i2)*4;
+      int n2 = (i * width2 + i2)*4;
 
       texl += (int) data [n2+2] + data [n2+1] + data [n2];
       texr += (int) data [n2];
@@ -189,10 +189,10 @@ int CTexture::loadFromTGA (char *fname, int quality, int alphatype, int mipmap) 
   free (buf);
 #endif
 
-  texlight = (float) texl / width / height / 3 / 256; // average brightness
-  texred = (float) texr / width / height / 256; // average red
-  texgreen = (float) texg / width / height / 256; // average green
-  texblue = (float) texb / width / height / 256; // average blue
+  texlight = (float) texl / width2 / height2 / 3 / 256; // average brightness
+  texred = (float) texr / width2 / height2 / 256; // average red
+  texgreen = (float) texg / width2 / height2 / 256; // average green
+  texblue = (float) texb / width2 / height2 / 256; // average blue
   strcpy (name, fname);
   this->quality = quality;
   this->mipmap = (mipmap != 0);
@@ -201,11 +201,11 @@ int CTexture::loadFromTGA (char *fname, int quality, int alphatype, int mipmap) 
 
 void CTexture::getColor (CColor *c, int x, int y)
 {
-  if (x < 0) x = (int) -x % width;
-  if (y < 0) y = (int) -y % height;
-  if (x >= width) x = (int) x % width;
-  if (y >= height) y = (int) y % height;
-  int offs = y * width + x;
+  if (x < 0) x = (int) -x % width2;
+  if (y < 0) y = (int) -y % height2;
+  if (x >= width2) x = (int) x % width2;
+  if (y >= height2) y = (int) y % height2;
+  int offs = y * width2 + x;
   offs <<= 2;
   c->c [0] = data [offs];
   c->c [1] = data [offs + 1];

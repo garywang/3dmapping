@@ -5,12 +5,17 @@ pthread_t thread;
 
 testApp* kinection;
 
+#include <iostream>
+
 void initializeApp()
 {
+  std::cout << "Initializing" << std::endl;
   kinection = new testApp();
-  ofAppGlutWindow window;
-  ofSetupOpenGL(&window, 1024, 768, OF_WINDOW);
+  std::cout << "Running" << std::endl;
+  //ofAppGlutWindow window;
+  //ofSetupOpenGL(&window, 1024, 768, OF_WINDOW);
   ofRunApp(kinection);
+  std::cout << "Done" << std::endl;
 }
 
 //int main() {

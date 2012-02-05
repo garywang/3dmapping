@@ -359,9 +359,9 @@ void drawMouseCursor ()
   glMatrixMode (GL_PROJECTION);
   glPushMatrix ();
   glLoadIdentity ();
-  gluOrtho2D (0, width, 0, height);
+  gluOrtho2D (0, width2, 0, height2);
   glScalef (1, -1, 1);
-  glTranslatef (0, -height, 0);
+  glTranslatef (0, -height2, 0);
   glMatrixMode (GL_MODELVIEW);
   glLoadIdentity ();
   gl->enableAlphaBlending ();
@@ -369,7 +369,7 @@ void drawMouseCursor ()
   glAlphaFunc (GL_GEQUAL, 0.1);
   glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
   gl->enableTextures (texcross2->textureID);
-  int crossradius = width / 35;
+  int crossradius = width2 / 35;
 
   glTranslatef (mousex, mousey, 0);
   glBegin (GL_QUADS);
@@ -715,7 +715,7 @@ int game_levelInit ()
       }
   }
 
-  // initialize object's height over the surface
+  // initialize object's height2 over the surface
   for (i = 0; i < maxfighter; i ++)
   {
     if (fighter [i]->id >= FLAK1 && fighter [i]->id <= FLAK2)
@@ -972,14 +972,14 @@ int game_levelInit ()
 
 void game_reshape ()
 {
-  glViewport(0, 0, (GLint) width, (GLint) height);
+  glViewport(0, 0, (GLint) width2, (GLint) height2);
 
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
 
   float v = getView ();
   if (camera == 50) v = 100000.0;
-  gluPerspective (visibleangle, (float) width / height, nearclippingplane * GLOBALSCALE, v * GLOBALSCALE);
+  gluPerspective (visibleangle, (float) width2 / height2, nearclippingplane * GLOBALSCALE, v * GLOBALSCALE);
   glPolygonMode (GL_FRONT_AND_BACK, polygonMode);
 
 #ifndef USE_GLUT
@@ -992,7 +992,7 @@ void game_reshape ()
 
 void menu_reshape ()
 {
-  glViewport(0, 0, (GLint) width, (GLint) height);
+  glViewport(0, 0, (GLint) width2, (GLint) height2);
 
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
@@ -1009,7 +1009,7 @@ void menu_reshape ()
 
 void credits_reshape ()
 {
-  glViewport(0, 0, (GLint) width, (GLint) height);
+  glViewport(0, 0, (GLint) width2, (GLint) height2);
 
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
@@ -1026,7 +1026,7 @@ void credits_reshape ()
 
 void stats_reshape ()
 {
-  glViewport(0, 0, (GLint) width, (GLint) height);
+  glViewport(0, 0, (GLint) width2, (GLint) height2);
 
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
@@ -1630,7 +1630,7 @@ int lastmx = 0, lastmy = 0;
 void game_mouserelmotion (int xrel, int yrel)
 {
   if (controls != CONTROLS_MOUSE || !mouse_relative) return;
-  float xr = (float) xrel / width, yr = (float) yrel / height;
+  float xr = (float) xrel / width2, yr = (float) yrel / height2;
   
   float roll = (float) -xr * 20;
 
@@ -1654,7 +1654,7 @@ void game_mousemotion (int x, int y)
 {
   if (controls != CONTROLS_MOUSE || mouse_relative) return;
 
-  float mx = width / 2, my = height / 2;
+  float mx = width2 / 2, my = height2 / 2;
   float dx = x - mx, dy = my - y;
   dx *= mouse_sensitivity / 70.0F;
   dy *= mouse_sensitivity / 70.0F;
@@ -1662,7 +1662,7 @@ void game_mousemotion (int x, int y)
     dy *= -1;
 
 // mouse interface code added by Lourens Veen
-  float nx = dx / width; // normalised x-coordinate, -1 at lefthand 
+  float nx = dx / width2; // normalised x-coordinate, -1 at lefthand 
                          // side of the screen, 1 at righthand side 
   if (mouse_autorudder)
   {
@@ -1697,7 +1697,7 @@ void game_mousemotion (int x, int y)
   else 
     fplayer->rolleffect = 0.0f; 
 
-  fplayer->elevatoreffect = dy / height * 2.5; 
+  fplayer->elevatoreffect = dy / height2 * 2.5; 
   if (fplayer->elevatoreffect > 1.0f) fplayer->elevatoreffect = 1.0f; 
   else if (fplayer->elevatoreffect < -0.5f) fplayer->elevatoreffect = -0.5f; 
 
@@ -2124,8 +2124,8 @@ char *getModelName (int id)
 
 void mission_mouse (int button, int state, int x, int y)
 {
-  float rx = (float) x / width;
-  float ry = (float) y / height;
+  float rx = (float) x / width2;
+  float ry = (float) y / height2;
   missionmenuitemselected = -1;
 
   missionmenufighterselected = -1;
@@ -2344,8 +2344,8 @@ void fame_mouse (int button, int state, int x, int y)
 
 void create_mouse (int button, int state, int x, int y)
 {
-  float rx = (float) x / width;
-  float ry = (float) y / height;
+  float rx = (float) x / width2;
+  float ry = (float) y / height2;
   missionmenuitemselected = -1;
 
   if (ry >= 0.8 && ry <= 0.9)
@@ -2398,8 +2398,8 @@ void create_display ()
 
 void join_mouse (int button, int state, int x, int y)
 {
-  float rx = (float) x / width;
-  float ry = (float) y / height;
+  float rx = (float) x / width2;
+  float ry = (float) y / height2;
   missionmenuitemselected = -1;
 
   if (ry >= 0.8 && ry <= 0.9)
@@ -2634,8 +2634,8 @@ void quit_key (unsigned char key, int x, int y)
 
 void quit_mouse (int button, int state, int x, int y)
 {
-  float rx = (float) x / width;
-  float ry = (float) y / height;
+  float rx = (float) x / width2;
+  float ry = (float) y / height2;
   missionmenuitemselected = -1;
 
   if (ry >= 0.5 && ry <= 0.55)
@@ -4285,7 +4285,7 @@ int inittimer_gl117 = 0;
 void init_reshape ()
 {
   // use whole window
-  glViewport (0, 0, (GLint) width, (GLint) height);
+  glViewport (0, 0, (GLint) width2, (GLint) height2);
 
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
@@ -5056,11 +5056,13 @@ static void game_kinect()
 {
   printf("Hi there! I'm kinectin'!\n");
 
+  
+
     // Do kinect processing, and call functions like the example code below:
     /*
   if (controls != CONTROLS_MOUSE || mouse_relative) return;
 
-  float mx = width / 2, my = height / 2;
+  float mx = width2 / 2, my = height2 / 2;
   float dx = x - mx, dy = my - y;
   dx *= mouse_sensitivity / 70.0F;
   dy *= mouse_sensitivity / 70.0F;
@@ -5103,7 +5105,7 @@ static void game_kinect()
   else 
     fplayer->rolleffect = 0.0f; 
 
-  fplayer->elevatoreffect = dy / height * 2.5; 
+  fplayer->elevatoreffect = dy / height2 * 2.5; 
   if (fplayer->elevatoreffect > 1.0f) fplayer->elevatoreffect = 1.0f; 
   else if (fplayer->elevatoreffect < -0.5f) fplayer->elevatoreffect = -0.5f; 
 
@@ -5115,27 +5117,38 @@ static void game_kinect()
     */
 }
 
+void init();
+int getLhX();
+int getLhY();
+int getRhX();
+int getRhY();
+
+#include <iostream>
+
 static void* myKinectFunc (void *)
 {
+  std::cout << "Starting myKinect Func" << std::endl << std::flush;
+  init();
   while (true)
   {
-    printf("Calling kinect func\n");
+    std::cout << "myKinect Func loop" << std::endl << std::flush;
     if (game == GAME_PLAY)
     {
-      if (controls == CONTROLS_KINECT)
+      if (controls == CONTROLS_KINECT) {
 	game_kinect ();
+      }
     }
   }
 }
 
 
 
-static void myReshapeFunc (int width, int height)
+static void myReshapeFunc (int width2, int height2)
 {
-  ::width = width;
-  ::height = height;
-  ::wantwidth = width;
-  ::wantheight = height;
+  ::width2 = width2;
+  ::height2 = height2;
+  ::wantwidth = width2;
+  ::wantheight = height2;
   if (game == GAME_PLAY || game == GAME_PAUSE)
     game_reshape ();
   else if (game == GAME_MENU || game == GAME_MISSION || game == GAME_QUIT)
@@ -5469,7 +5482,7 @@ void sdlMainLoop ()
     
     if (sdldisplay) myDisplayFunc ();
     sdldisplay = false;
-    if (sdlreshape) myReshapeFunc (width, height);
+    if (sdlreshape) myReshapeFunc (width2, height2);
     sdlreshape = false;
     myTimerFunc (1); // dummy value
   }
@@ -5510,7 +5523,7 @@ int setGlutScreen (int w, int h, int b, int f)
   return 1;
 }
 
-// set screen to (width, height, bpp, fullscreen), return 0 on error
+// set screen to (width2, height2, bpp, fullscreen), return 0 on error
 int setScreen (int w, int h, int b, int f)
 {
 
@@ -5596,8 +5609,8 @@ int setScreen (int w, int h, int b, int f)
   glViewport (0, 0, (GLint) w, (GLint) h);
 
   // take over results in global variables
-  width = w;
-  height = h;
+  width2 = w;
+  height2 = h;
   bpp = b;
   fullscreen = f;
   wantwidth = w; // requested values for next restart
@@ -5708,12 +5721,12 @@ void config_test (int argc, char **argv)
   // start with lowest quality/view settings
   quality = 0;
   view = 20;
-  width = resolution [valids] [0];
-  height = resolution [valids] [1];
+  width2 = resolution [valids] [0];
+  height2 = resolution [valids] [1];
   bpp = bppi [valids];
   fullscreen = resolution [valids] [3];
-  wantwidth = width; // requested values for next restart
-  wantheight = height;
+  wantwidth = width2; // requested values for next restart
+  wantheight = height2;
   wantfullscreen = fullscreen;
 }
 
@@ -7541,12 +7554,12 @@ int main (int argc, char **argv)
   {
     glutInit (&argc, argv);
     glutInitDisplayMode (GLUT_DEPTH | GLUT_RGB | GLUT_DOUBLE);
-    if (!setScreen (width, height, bpp, fullscreen))
+    if (!setScreen (width2, height2, bpp, fullscreen))
     {
       load_saveconfig ();
-      if (!setScreen (width, height, bpp, fullscreen))
+      if (!setScreen (width2, height2, bpp, fullscreen))
       {
-        sprintf (buf, "No working display mode %dx%d found", width, height);
+        sprintf (buf, "No working display mode %dx%d found", width2, height2);
         display (buf, LOG_FATAL);
         exit (EXIT_INIT);
       }
@@ -7572,7 +7585,7 @@ int main (int argc, char **argv)
   glutTimerFunc (20, myTimerFunc, 0);
 
   // parameters: visible angle, aspectracio, z-nearclip, z-farclip
-  gluPerspective (visibleangle, (float) width / height, nearclippingplane * GLOBALSCALE, 50.0 * GLOBALSCALE);
+  gluPerspective (visibleangle, (float) width2 / height2, nearclippingplane * GLOBALSCALE, 50.0 * GLOBALSCALE);
   
   // no keyboard available with GLUT, as there are no KEY_DOWN/UP events
   if (controls <= 0)
@@ -7610,12 +7623,12 @@ int main (int argc, char **argv)
 
   if (!configinit)
   {
-    if (!setScreen (width, height, bpp, fullscreen))
+    if (!setScreen (width2, height2, bpp, fullscreen))
     {
       load_saveconfig ();
-      if (!setScreen (width, height, bpp, fullscreen))
+      if (!setScreen (width2, height2, bpp, fullscreen))
       {
-        sprintf (buf, "No working display mode %dx%d found.", width, height);
+        sprintf (buf, "No working display mode %dx%d found.", width2, height2);
         display (buf, LOG_FATAL);
         exit (EXIT_INIT);
       }
@@ -7642,7 +7655,7 @@ int main (int argc, char **argv)
 
   display ("Calling main initialization method", LOG_ALL);
   myFirstInit ();
-  myReshapeFunc (width, height);
+  myReshapeFunc (width2, height2);
 
   display ("Querying joystick", LOG_ALL);
   joysticks = SDL_NumJoysticks ();

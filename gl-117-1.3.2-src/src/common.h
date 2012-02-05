@@ -57,7 +57,7 @@
 #define Uint16 unsigned short
 #endif
 
-#define LINEWIDTH(x) (float) x * height / 600.0F
+#define LINEWIDTH(x) (float) x * height2 / 600.0F
 
 // game states
 #define GAME_INIT 0
@@ -92,7 +92,7 @@
 // preferences
 extern int quality;
 extern float view;
-extern int width, height, bpp;
+extern int width2, height2, bpp;
 extern int wantwidth, wantheight, wantfullscreen; // requested values for next restart
 extern int volumesound;
 extern int volumemusic;
