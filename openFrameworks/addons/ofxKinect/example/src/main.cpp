@@ -13,14 +13,14 @@ void initializeApp()
   ofRunApp(kinection);
 }
 
-int main() {
-  initializeApp();
-}
+//int main() {
+//  initializeApp();
+//}
 
-extern "C" {
+//extern "C" {
   void init() {initializeApp();}
   int getLhX() {return kinection->lhx;}
   int getLhY() {return kinection->lhy;}
   int getRhX() {return kinection->rhx;}
   int getRhY() {return kinection->rhy;}
-}
+//}

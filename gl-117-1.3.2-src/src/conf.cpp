@@ -35,7 +35,8 @@
 // initialization
 int quality = 3;
 float view = 50.0;
-int width = 800, height = 600, bpp = 32;
+//int width = 800, height = 600
+int bpp = 32;
 int wantwidth = 800, wantheight = 600, wantfullscreen = 1;
 int dithering = 1;
 int volumesound = 100;
