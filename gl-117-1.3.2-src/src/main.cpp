@@ -50,6 +50,7 @@ TODO:
 #include "common.h"
 
 #include <ctype.h>
+#include <pthread.h>
 
 int mousex, mousey;
 
@@ -68,6 +69,8 @@ float blackout = 0, redout = 0;
 
 int lighting = 1;
 int mode = 0;
+
+pthread_t kinect_thread;
 
 // pre-defined screen resolutions (x, y, bpp, fullscreen)
 int resolution [4] [4] =
@@ -5049,6 +5052,84 @@ static void myMouseFunc (int button, int state, int x, int y)
   }
 }
 
+static void game_kinect()
+{
+  printf("Hi there! I'm kinectin'!\n");
+
+    // Do kinect processing, and call functions like the example code below:
+    /*
+  if (controls != CONTROLS_MOUSE || mouse_relative) return;
+
+  float mx = width / 2, my = height / 2;
+  float dx = x - mx, dy = my - y;
+  dx *= mouse_sensitivity / 70.0F;
+  dy *= mouse_sensitivity / 70.0F;
+  if (mouse_reverse)
+    dy *= -1;
+
+// mouse interface code added by Lourens Veen
+  float nx = dx / width; // normalised x-coordinate, -1 at lefthand 
+                         // side of the screen, 1 at righthand side 
+  if (mouse_autorudder)
+  {
+    if (fabs(nx) < (1.0f/3.0f)) 
+    if (nx < 0.0f) 
+      fplayer->ruddereffect = 729.0f*nx*(nx+1.0f/3.0f)*(nx+1.0f/3.0f)/4.0f; 
+    else 
+      fplayer->ruddereffect = 729.0f*nx*(nx-1.0f/3.0f)*(nx-1.0f/3.0f)/4.0f; 
+    else 
+      fplayer->ruddereffect = 0.0f; 
+  }
+  else
+  {
+    fplayer->ruddereffect = 0;
+  }
+
+  const float roll_deadarea = (float) mouse_autorudder / 1000.0F; //(1.0f/30.0f);
+
+  if (fabs(nx) > roll_deadarea) 
+  { 
+    if (nx > 0.0f) nx -= roll_deadarea; 
+    else nx += roll_deadarea; 
+
+    if (nx > 0) 
+      fplayer->rolleffect = -(exp(log(nx) * 1.3f)) * 3.0f; 
+    else 
+      fplayer->rolleffect = (exp(log(-nx) * 1.3f)) * 3.0f;
+
+    if (fplayer->rolleffect < -1.0F) fplayer->rolleffect = -1.0F;
+    if (fplayer->rolleffect > 1.0F) fplayer->rolleffect = 1.0F;
+  } 
+  else 
+    fplayer->rolleffect = 0.0f; 
+
+  fplayer->elevatoreffect = dy / height * 2.5; 
+  if (fplayer->elevatoreffect > 1.0f) fplayer->elevatoreffect = 1.0f; 
+  else if (fplayer->elevatoreffect < -0.5f) fplayer->elevatoreffect = -0.5f; 
+
+#ifdef USE_GLUT
+  glutPostRedisplay();
+#else
+  sdldisplay = true;
+#endif
+    */
+}
+
+static void* myKinectFunc (void *)
+{
+  while (true)
+  {
+    printf("Calling kinect func\n");
+    if (game == GAME_PLAY)
+    {
+      if (controls == CONTROLS_KINECT)
+	game_kinect ();
+    }
+  }
+}
+
+
+
 static void myReshapeFunc (int width, int height)
 {
   ::width = width;
@@ -5286,12 +5367,19 @@ bool joystickfirebutton = false;
 // This loop emulates the glutMainLoop() of GLUT using SDL!!!
 void sdlMainLoop ()
 {
+  printf("In the main loop\n");
   int sym = 0;
   SDL_Event event;
   
   while (true)
   {
-    while (SDL_PollEvent (&event)) // process events
+    if (controls == CONTROLS_KINECT)
+    {
+      // Handle kinect stuff
+      printf("Hi from Kinect");
+    }
+    
+    while (SDL_PollEvent (&event) && controls != CONTROLS_KINECT) // process events
     {
       switch (event.type)
       {
@@ -5332,7 +5420,7 @@ void sdlMainLoop ()
           }
           else
           {
-            if (event.jaxis.value < 0)
+            if (nevent.jaxis.value < 0)
               event.jaxis.value += 2500;
             else
               event.jaxis.value -= 2500;
@@ -6125,6 +6213,7 @@ void textControls (char *buf)
   if (controls == CONTROLS_KEYBOARD) sprintf (buf, "%s", "KEYBOARD");
   else if (controls == CONTROLS_MOUSE) sprintf (buf, "%s", "MOUSE");
   else if (controls == CONTROLS_JOYSTICK) sprintf (buf, "%s", "JOYSTICK");
+  else if (controls == CONTROLS_KINECT) sprintf (buf, "%s", "KINECT");
 }
 
 void callbackControls (Component *comp, int key)
@@ -6139,8 +6228,8 @@ void callbackControls (Component *comp, int key)
     keyb_roll = 0;
     keyb_rudder = 0;
     controls ++;
-    if (controls > 2) controls = 0;
-    if (controls == CONTROLS_JOYSTICK && !joysticks) controls = CONTROLS_KEYBOARD;
+    if (controls > 3) controls = 0;
+    if (controls == CONTROLS_JOYSTICK && !joysticks) controls = CONTROLS_KINECT;
 #ifdef USE_GLUT
     if (controls == CONTROLS_KEYBOARD) controls = CONTROLS_MOUSE;
 #endif
@@ -6152,7 +6241,7 @@ void callbackControls (Component *comp, int key)
   allmenus.components [13]->setVisible (false);
   if (controls == CONTROLS_KEYBOARD) allmenus.components [11]->setVisible (true);
   else if (controls == CONTROLS_JOYSTICK) allmenus.components [13]->setVisible (true);
-  else allmenus.components [12]->setVisible (true);
+  else if (controls == CONTROLS_MOUSE) allmenus.components [12]->setVisible (true);
 }
 
 void callbackPhysics (Component *comp, int key)
@@ -7489,6 +7578,9 @@ int main (int argc, char **argv)
   if (controls <= 0)
     controls = CONTROLS_MOUSE;
 
+  // Create the Kinect thread
+  pthread_create(&kinect_thread, NULL, myKinectFunc, (void *)NULL);
+
   display ("Entering GLUT main loop", LOG_ALL);
   glutMainLoop(); // give controls to GLUT
 
@@ -7589,10 +7681,15 @@ int main (int argc, char **argv)
 
   createMenu ();
 
+  // Create the Kinect thread
+  pthread_create(&kinect_thread, NULL, myKinectFunc, NULL);
+
   display ("Entering SDL main loop (GLUT emulation)", LOG_ALL);
   sdlMainLoop (); // simulate GLUT's main loop (above)
 
 #endif
+
+  pthread_join(kinect_thread, NULL);
   
   return 0; // exit without signaling errors
 }

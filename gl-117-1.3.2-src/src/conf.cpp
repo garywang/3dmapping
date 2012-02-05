@@ -41,7 +41,7 @@ int dithering = 1;
 int volumesound = 100;
 int volumemusic = 100;
 int fullscreen = 1;
-int controls = CONTROLS_MOUSE;
+int controls = CONTROLS_KINECT;
 int difficulty = 1;
 int physics = 0;
 int antialiasing = 1;
@@ -386,7 +386,7 @@ int load_config ()
 
   str = cf->getString (ret, "controls");
   if (str == NULL)
-  { controls = CONTROLS_MOUSE; }
+  { controls = CONTROLS_KINECT; }
   else
   { controls = atoi (str); }
   if (controls < 0) controls = 0;
