@@ -117,7 +117,7 @@ void testApp::update() {
 	  for(int i = 0, count = 0; i < NUM_BLOBS && count < 2; i++) {
 	    if (blobs[i].size() > 100) {
 	      count ++;
-	      for (int j = 0; j < blobs[i].size(); j++) {
+	      for (int j = 0; j < (signed int)blobs[i].size(); j++) {
 		pix[blobs[i][j].first*640 + blobs[i][j].second] = 255;
 	      }
 	    }
@@ -128,7 +128,21 @@ void testApp::update() {
 
 	  // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
 	  // also, find holes is set to true so we will get interior contours as well....
-	  contourFinder.findContours(grayImage, 2, (kinect.width*kinect.height)/2, 10, false);
+	  int numBlobs = contourFinder.findContours(grayImage, 2, (kinect.width*kinect.height)/2, 10, false);
+
+	  lhx = -1;
+	  lhy = -1;
+	  rhx = -1;
+	  rhy = -1;
+
+	  if (numBlobs >= 1) {
+	    lhx = contourFinder.blobs[0].centroid.x;
+	    lhy = contourFinder.blobs[0].centroid.y;
+	  }
+	  if (numBlobs >= 2) {
+	    rhx = contourFinder.blobs[1].centroid.x;
+	    rhy = contourFinder.blobs[1].centroid.y;
+	  }
 	}
 	
 #ifdef USE_TWO_KINECTS

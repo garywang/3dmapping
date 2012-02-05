@@ -46,6 +46,8 @@ public:
 	int farThreshold;
 	
 	int angle;
+
+	int lhx, lhy, rhx, rhy;
 	
     // used for viewing the point cloud
 	ofEasyCam easyCam;
